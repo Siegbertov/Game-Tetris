@@ -36,7 +36,7 @@ class Metadata(Colors):
     PLAY_ZONE_HEIGHT = 600
     PLAY_ZONE_X = (SCREEN_WIDTH - PLAY_ZONE_WIDTH) // 2
     PLAY_ZONE_Y = SCREEN_HEIGHT - PLAY_ZONE_HEIGHT
-    CEIL_SIZE = 40
+    CEIL_SIZE = 50
     UPPER_PADDING = 4
     ROW_NUM = PLAY_ZONE_HEIGHT // CEIL_SIZE + UPPER_PADDING
     COLUMN_NUM = PLAY_ZONE_WIDTH // CEIL_SIZE
@@ -232,7 +232,7 @@ class Game(Pieces):
     #                                                                                                       CHECK LOSING
     def you_lose(self):
         for c in range(len(self.main_board[0])):
-            if all(self.main_board[r][c] == 1 for r in range(3, len(self.main_board))):
+            if self.main_board[3][c] == 1:
                 return True
         return False
 
