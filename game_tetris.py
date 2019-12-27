@@ -124,3 +124,159 @@ class Pieces(Metadata):
             for c in range(len(random_piece[0])):
                 copy_board[row + r][col + c] = random_piece[r][c]
         return copy_board
+
+
+class Game(Pieces):
+    def __init__(self):
+        super().__init__()
+        self.SCREEN = pygame.display.set_mode((self.SCREEN_WIDTH, self.SCREEN_HEIGHT))
+        self.run = True
+
+        self.main_board = np.zeros((self.ROW_NUM, self.COLUMN_NUM))
+        self.upper_board = self.insert_piece_in_board()
+
+    #                                                                                                       MOVING RIGHT
+    def piece_touch_right_side(self):
+        for r in range(len(self.upper_board)):
+            if self.upper_board[r][-1] == 1:
+                return True
+        return False
+
+    def blockage_on_right_side(self):
+        for r in range(len(self.upper_board)):
+            for c in range(len(self.upper_board[0]) - 1):
+                if self.upper_board[r][c] == self.main_board[r][c + 1] and self.upper_board[r][c] == 1:
+                    return True
+        return False
+
+    def possible_to_move_right(self):
+        if self.blockage_on_right_side() or  self.piece_touch_right_side():
+            return False
+        return True
+
+    def move_right(self):
+        if self.possible_to_move_right():
+            new_order = []
+            num_of_col = len(self.upper_board[0])
+            for c in range(num_of_col):
+                if c == 0:
+                    new_order.append(num_of_col - 1)
+                else:
+                    new_order.append(c - 1)
+            self.upper_board = self.upper_board[:, new_order]
+
+    #                                                                                                        MOVING LEFT
+    def piece_touch_left_side(self):
+        for r in range(len(self.upper_board)):
+            if self.upper_board[r][0] == 1:
+                return True
+        return False
+
+    def blockage_on_left_side(self):
+        for r in range(len(self.upper_board)):
+            for c in range(1, len(self.upper_board[0])):
+                if self.upper_board[r][c] == self.main_board[r][c - 1] and self.upper_board[r][c] == 1:
+                    return True
+        return False
+
+    def possible_to_move_left(self):
+        if self.blockage_on_left_side() or self.piece_touch_left_side():
+            return False
+        return True
+
+    def move_left(self):
+        if self.possible_to_move_left():
+            new_order = []
+            num_of_col = len(self.upper_board[0])
+            for c in range(num_of_col):
+                if c == num_of_col - 1:
+                    new_order.append(0)
+                else:
+                    new_order.append(c + 1)
+            self.upper_board = self.upper_board[:, new_order]
+
+    #                                                                                                       FALLING DOWN
+    def piece_touch_bottom_side(self):
+        last_row = self.upper_board[-1]
+        for el in last_row:
+            if el == 1:
+                return True
+        return False
+
+    def blockage_on_bottom_side(self):
+        for r in range(len(self.upper_board) - 1):
+            for c in range(len(self.upper_board[0])):
+                if self.upper_board[r][c] == self.main_board[r+1][c] and self.upper_board[r][c] == 1:
+                    return True
+        return False
+
+    def possible_to_move_down(self):
+        if self.blockage_on_bottom_side() or self.piece_touch_bottom_side():
+            return False
+        return True
+
+    def tick_tick_tick(self):
+        if self.possible_to_move_down():
+            new_board = []
+            num_of_rows = len(self.upper_board)
+            for r in range(num_of_rows):
+                if r == 0:
+                    new_board.append(self.upper_board[num_of_rows-1])
+                else:
+                    new_board.append(self.upper_board[r - 1])
+            self.upper_board = np.array(new_board)
+        else:
+            self.main_board = self.main_board + self.upper_board
+            self.upper_board = self.insert_piece_in_board()
+
+    #                                                                                                       CHECK LOSING
+    def you_lose(self):
+        for c in range(len(self.main_board[0])):
+            if all(self.main_board[r][c] == 1 for r in range(3, len(self.main_board))):
+                return True
+        return False
+
+    #                                                                                                  COMBO COMBO COMBO
+    def check_each_row(self):
+        for r in range(len(self.main_board)):
+            if all(self.main_board[r]):
+                self.reduce_and_shift(r)
+
+    def reduce_and_shift(self, num_of_row):
+        for num in range(num_of_row, 3, -1):
+            self.main_board[num] = self.main_board[num-1]
+
+    #                                                                                                          REDRAWING
+    def draw_play_zone(self):
+        pygame.draw.rect(self.SCREEN, self.BLACK,
+                         (self.PLAY_ZONE_X, self.PLAY_ZONE_Y, self.PLAY_ZONE_WIDTH, self.PLAY_ZONE_HEIGHT), 3)
+        for hor in range(self.ROW_NUM- self.UPPER_PADDING):
+            pygame.draw.line(self.SCREEN, self.BLACK, (self.PLAY_ZONE_X, self.PLAY_ZONE_Y + hor * self.CEIL_SIZE), (self.PLAY_ZONE_X + self.PLAY_ZONE_WIDTH, self.PLAY_ZONE_Y + hor * self.CEIL_SIZE), 3)
+
+        for ver in range(self.COLUMN_NUM):
+            pygame.draw.line(self.SCREEN, self.BLACK, (self.PLAY_ZONE_X + ver * self.CEIL_SIZE, self.PLAY_ZONE_Y), (self.PLAY_ZONE_X + ver * self.CEIL_SIZE, self.SCREEN_HEIGHT), 3)
+
+    def draw_pieces(self):
+        for r in range(self.UPPER_PADDING, len(self.upper_board)):
+            for c in range(len(self.upper_board[0])):
+                x = self.PLAY_ZONE_X  + c * self.CEIL_SIZE
+                y = self.PLAY_ZONE_Y + (r - self.UPPER_PADDING) * self.CEIL_SIZE
+                if self.upper_board[r][c] == 1 or self.main_board[r][c] == 1:
+                    pygame.draw.rect(self.SCREEN, self.GREEN, (x, y, self.CEIL_SIZE, self.CEIL_SIZE))
+                elif self.upper_board[r][c] == 0:
+                    pygame.draw.rect(self.SCREEN, self.WHITE, (x, y, self.CEIL_SIZE, self.CEIL_SIZE))
+
+    def redraw_screen(self):
+        self.SCREEN.fill(self.WHITE)
+        self.draw_pieces()
+        self.draw_play_zone()
+        self.check_each_row()
+        if self.you_lose():
+            self.loser_screen()
+        pygame.display.update()
+
+    def loser_screen(self):
+        s = pygame.Surface((self.SCREEN_WIDTH, self.SCREEN_HEIGHT))
+        s.set_alpha(40)
+        s.fill(self.RED)
+        self.SCREEN.blit(s, (0, 0))
