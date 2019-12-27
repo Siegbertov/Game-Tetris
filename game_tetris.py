@@ -102,3 +102,25 @@ class Metadata(Colors):
                   hor_S, ver_S,
                   up_L, right_L, down_L, left_L,
                   up_J, right_J, down_J, left_J]
+
+
+class Pieces(Metadata):
+    def __init__(self):
+        self.empty_upper_board = self.create_empty_board()
+        self.empty_col_num = len(self.empty_upper_board[0])
+
+    def create_empty_board(self):
+        return np.zeros((self.ROW_NUM, self.COLUMN_NUM))
+
+    def get_random_piece(self):
+        return random.choice(self.all_pieces)
+
+    def insert_piece_in_board(self):
+        random_piece = self.get_random_piece()
+        row = self.UPPER_PADDING - len(random_piece)
+        col = random.randrange(self.empty_col_num - len(random_piece[0]))
+        copy_board = deepcopy(self.empty_upper_board)
+        for r in range(len(random_piece)):
+            for c in range(len(random_piece[0])):
+                copy_board[row + r][col + c] = random_piece[r][c]
+        return copy_board
