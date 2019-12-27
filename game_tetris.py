@@ -280,3 +280,32 @@ class Game(Pieces):
         s.set_alpha(40)
         s.fill(self.RED)
         self.SCREEN.blit(s, (0, 0))
+
+
+def game_loop():
+    new_game = Game()
+    while new_game.run:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                quit_game()
+            if event.type == MOVEEVENT:
+                if not new_game.you_lose():
+                    new_game.tick_tick_tick()
+
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_SPACE:
+                    game_loop()
+
+                if event.key == pygame.K_RIGHT:
+                    new_game.move_right()
+
+                if event.key == pygame.K_LEFT:
+                    new_game.move_left()
+
+                if event.key == pygame.K_DOWN:
+                    new_game.tick_tick_tick()
+
+        new_game.redraw_screen()
+
+game_loop()
+
