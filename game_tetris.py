@@ -25,7 +25,7 @@ class Colors:
     YELLOW = (255, 255, 0)
     PINK = (255, 0, 255)
     LIGHT_BLUE = (0, 255, 255)
-    COLORS = [RED, GREEN, BLUE, ORANGE, YELLOW, PINK, LIGHT_BLUE]
+    COLORS = [WHITE, RED, GREEN, BLUE, ORANGE, YELLOW, PINK, LIGHT_BLUE]
 
 
 class Metadata(Colors):
@@ -41,15 +41,6 @@ class Metadata(Colors):
     ROW_NUM = PLAY_ZONE_HEIGHT // CEIL_SIZE + UPPER_PADDING
     COLUMN_NUM = PLAY_ZONE_WIDTH // CEIL_SIZE
 
-    ver_line = [[1],
-                [1],
-                [1],
-                [1]]
-    hor_line = [[1, 1, 1, 1]]
-
-    cube = [[1, 1],
-            [1, 1]]
-
     up_T = [[0, 1, 0],
             [1, 1, 1]]
     right_T = [[1, 0],
@@ -61,47 +52,56 @@ class Metadata(Colors):
               [1, 1],
               [0, 1]]
 
-    hor_Z = [[1, 1, 0],
-             [0, 1, 1]]
-    ver_Z = [[0, 1],
-             [1, 1],
-             [1, 0]]
+    up_L = [[2, 0],
+            [2, 0],
+            [2, 2]]
+    right_L = [[2, 2, 2],
+               [2, 0, 0]]
+    down_L = [[2, 2],
+              [0, 2],
+              [0, 2]]
+    left_L = [[0, 0, 2],
+              [2, 2, 2]]
 
-    hor_S = [[0, 1, 1],
-             [1, 1, 0]]
-    ver_S = [[1, 0],
-             [1, 1],
-             [0, 1]]
+    up_J = [[0, 3],
+            [0, 3],
+            [3, 3]]
+    right_J = [[3, 0, 0],
+               [3, 3, 3]]
+    down_J = [[3, 3],
+              [3, 0],
+              [3, 0]]
+    left_J = [[3, 3, 3],
+              [0, 0, 3]]
 
-    up_L = [[1, 0],
-            [1, 0],
-            [1, 1]]
-    right_L = [[1, 1, 1],
-               [1, 0, 0]]
-    down_L = [[1, 1],
-              [0, 1],
-              [0, 1]]
-    left_L = [[0, 0, 1],
-              [1, 1, 1]]
+    ver_line = [[4],
+                [4],
+                [4],
+                [4]]
+    hor_line = [[4, 4, 4, 4]]
 
-    up_J = [[0, 1],
-            [0, 1],
-            [1, 1]]
-    right_J = [[1, 0, 0],
-               [1, 1, 1]]
-    down_J = [[1, 1],
-              [1, 0],
-              [1, 0]]
-    left_J = [[1, 1, 1],
-              [0, 0, 1]]
+    hor_Z = [[5, 5, 0],
+             [0, 5, 5]]
+    ver_Z = [[0, 5],
+             [5, 5],
+             [5, 0]]
 
-    all_pieces = [ver_line, hor_line,
-                  cube,
-                  up_T, right_T, down_T, left_T,
+    hor_S = [[0, 6, 6],
+             [6, 6, 0]]
+    ver_S = [[6, 0],
+             [6, 6],
+             [0, 6]]
+
+    cube = [[7, 7],
+            [7, 7]]
+
+    all_pieces = [up_T, right_T, down_T, left_T,
+                  up_L, right_L, down_L, left_L,
+                  up_J, right_J, down_J, left_J,
+                  ver_line, hor_line,
                   hor_Z, ver_Z,
                   hor_S, ver_S,
-                  up_L, right_L, down_L, left_L,
-                  up_J, right_J, down_J, left_J]
+                  cube]
 
 
 class Pieces(Metadata):
@@ -138,14 +138,14 @@ class Game(Pieces):
     #                                                                                                       MOVING RIGHT
     def piece_touch_right_side(self):
         for r in range(len(self.upper_board)):
-            if self.upper_board[r][-1] == 1:
+            if self.upper_board[r][-1] != 0:
                 return True
         return False
 
     def blockage_on_right_side(self):
         for r in range(len(self.upper_board)):
             for c in range(len(self.upper_board[0]) - 1):
-                if self.upper_board[r][c] == self.main_board[r][c + 1] and self.upper_board[r][c] == 1:
+                if self.upper_board[r][c] == self.main_board[r][c + 1] and self.upper_board[r][c] != 0:
                     return True
         return False
 
@@ -168,14 +168,14 @@ class Game(Pieces):
     #                                                                                                        MOVING LEFT
     def piece_touch_left_side(self):
         for r in range(len(self.upper_board)):
-            if self.upper_board[r][0] == 1:
+            if self.upper_board[r][0] != 0:
                 return True
         return False
 
     def blockage_on_left_side(self):
         for r in range(len(self.upper_board)):
             for c in range(1, len(self.upper_board[0])):
-                if self.upper_board[r][c] == self.main_board[r][c - 1] and self.upper_board[r][c] == 1:
+                if self.upper_board[r][c] == self.main_board[r][c - 1] and self.upper_board[r][c] != 0:
                     return True
         return False
 
@@ -199,14 +199,14 @@ class Game(Pieces):
     def piece_touch_bottom_side(self):
         last_row = self.upper_board[-1]
         for el in last_row:
-            if el == 1:
+            if el != 0:
                 return True
         return False
 
     def blockage_on_bottom_side(self):
         for r in range(len(self.upper_board) - 1):
             for c in range(len(self.upper_board[0])):
-                if self.upper_board[r][c] == self.main_board[r+1][c] and self.upper_board[r][c] == 1:
+                if self.upper_board[r][c] != 0 and self.main_board[r+1][c] != 0:
                     return True
         return False
 
@@ -232,7 +232,7 @@ class Game(Pieces):
     #                                                                                                       CHECK LOSING
     def you_lose(self):
         for c in range(len(self.main_board[0])):
-            if self.main_board[3][c] == 1:
+            if self.main_board[3][c] != 0:
                 return True
         return False
 
@@ -259,12 +259,12 @@ class Game(Pieces):
     def draw_pieces(self):
         for r in range(self.UPPER_PADDING, len(self.upper_board)):
             for c in range(len(self.upper_board[0])):
-                x = self.PLAY_ZONE_X  + c * self.CEIL_SIZE
+                x = self.PLAY_ZONE_X + c * self.CEIL_SIZE
                 y = self.PLAY_ZONE_Y + (r - self.UPPER_PADDING) * self.CEIL_SIZE
-                if self.upper_board[r][c] == 1 or self.main_board[r][c] == 1:
-                    pygame.draw.rect(self.SCREEN, self.GREEN, (x, y, self.CEIL_SIZE, self.CEIL_SIZE))
-                elif self.upper_board[r][c] == 0:
-                    pygame.draw.rect(self.SCREEN, self.WHITE, (x, y, self.CEIL_SIZE, self.CEIL_SIZE))
+                if self.upper_board[r][c] != 0:
+                    pygame.draw.rect(self.SCREEN, self.COLORS[int(self.upper_board[r][c])], (x, y, self.CEIL_SIZE, self.CEIL_SIZE))
+                if self.main_board[r][c] != 0:
+                    pygame.draw.rect(self.SCREEN, self.COLORS[int(self.main_board[r][c])], (x, y, self.CEIL_SIZE, self.CEIL_SIZE))
 
     def redraw_screen(self):
         self.SCREEN.fill(self.WHITE)
